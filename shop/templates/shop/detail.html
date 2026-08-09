@@ -1,0 +1,79 @@
+{% extends "parent/base.html" %}
+{% load static %}
+{% block title %}Product List{% endblock title %}
+{% block content %}
+    <div class='header'>
+        <h1>List of products by category : {{category.name}}</h1>
+    </div>
+    <div>
+        <div>
+            <h2>{{product.category}}</h2>
+            <p>{{product.category}}</p>
+            <p>{{product.inventory}}</p>
+            <ul>
+                {% for f in product.features.all %}
+                    <li>{{f.name}} : {{f.value}}</li>
+                {% endfor %}
+            </ul>
+            <div>
+                <span>price : {{product.new_price}}</span>
+            </div>
+        </div>
+        <div>
+            {% for img in product.images.all %}
+                <img src='{{img.file.url}}' with='200px' height='300px'>
+            {% endfor %}    
+        <div>
+    </div>
+    <div>
+        <p>{{product.description}}</p>
+    </div>
+    <br><br>
+    <button type='button' id='add-cart'>add to cart</button>
+
+<br><br>
+{% if related_products %}
+    <section class="related-products">
+        <h2>Related products</h2>
+
+        {% for related in related_products %}
+            <article class="related-product">
+                <a href="{{ related.get_absolute_url }}">
+                    {% if related.images.first %}
+                        <img src="{{ related.images.first.file.url }}"
+                             alt="{{ related.name }}"
+                             width="300"
+                             height="300">
+                    {% endif %}
+                    <h3>{{ related.name }}</h3>
+                </a>
+                <p>{{ related.new_price }}</p>
+            </article>
+        {% endfor %}
+    </section>
+{% endif %}
+
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxy/1.6.1/scripts/jquery.ajaxy.min.js" integrity="sha512-bztGAvCE/3+a1Oh0gUro7BHukf6v7zpzrAb3ReWAVrt+bVNNphcl2tDTKCBr5zk7iEDmQ2Bv401fX3jeVXGIcA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxy/1.6.1/scripts/jquery.ajaxy.min.js" integrity="sha512-bztGAvCE/+a10h0gUro7BHukf6v7zpzrAb3ReWAvrt+bVNNphc12tDKCBr5zk7iEdMQ2Bv401fx3jeVXGICA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('#add-cart').click(function(){
+            var button = $(this);
+            $.ajax({
+                type : 'POST',
+                url : '{% url "cart:add_to_cart" product.id %}',
+                data : {'csrfmiddlewaretoken':'{{csrf_token}}'},
+                success:function(data){
+                    $('#item_count').text(data.item_count);
+                    $('#total_price').text(data.total_price);
+                },
+            });
+        });
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,8 @@
+<div>
+    {% with item_count=cart|length %}
+        <a href='{% url "cart:cart_detail" %}'><span>Shop</span></a>
+        <p id='item_count'>count : {{item_count}} items</p>
+        <p id='total_price'>price : {{cart.get_total_price}}</p>
+    {% endwith %}
+    <hr><br>
+</div>

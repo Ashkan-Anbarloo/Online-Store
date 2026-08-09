@@ -1,0 +1,12 @@
+{% extends "parent/base.html" %}
+{% block title %}Edit User{% endblock title %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <h3>اطلاعات کاربری</h3>
+    {{ user_form.as_p }}
+    <h3>آدرس</h3>
+    {{ address_form.as_p }}
+    <button type="submit">ذخیره تغییرات</button>
+</form>
+{% endblock content %}

@@ -1,0 +1,89 @@
+from shop.models import Product
+
+class Cart:
+    def __init__(self , request):
+        self.session = request.session
+        cart = self.session.get('cart')
+        if not cart:
+            cart = self.session['cart'] = {}
+        self.cart = cart
+        
+    def add(self , product):
+        product_id = str(product.id)
+        if product_id not in self.cart:
+            # در اینجا قیمت برداشتم برای اینکه هر دفعه بصورت مستقیم از دیتابیس بگیره  , 'price':product.new_price
+            self.cart[product_id] = {'quantity':1  , 'weight':product.weight}
+        else :
+            if self.cart[product_id]['quantity'] < product.inventory:
+                self.cart[product_id]['quantity'] += 1
+        self.save()
+
+    def decrease(self , product):
+        product_id = str(product.id)
+        if self.cart[product_id]['quantity'] > 1 :
+            self.cart[product_id]['quantity'] -= 1
+        self.save()
+
+
+    def remove(self , product):
+        product_id = str(product.id)
+        if product_id in self.cart:
+            del self.cart[product_id]
+        self.save()
+    
+    def clear(self):
+        del self.session['cart']
+        self.save()
+    
+    def get_post_price(self):
+        # weight = sum(item['weight']*item['quantity'] for item in self.cart.values())
+        product_ids = self.cart.keys()
+        products = Product.objects.filter(id__in=product_ids)
+        weight = 0
+        for product in products:
+            weight += product.weight * self.cart[str(product.id)]['quantity']
+        if weight < 1000:
+            return 20000
+        elif 1000 <= weight <= 2000:
+            return 30000
+        else:
+            return 50000
+    
+    # def get_total_price(self):
+    #     price = sum(item['price']*item['quantity'] for item in self.cart.values())
+    #     return price
+    def get_total_price(self):
+        product_ids = self.cart.keys()
+        products = Product.objects.filter(id__in=product_ids)
+        total = 0
+        for product in products:
+            total += product.new_price * self.cart[str(product.id)]['quantity']
+        return total
+
+
+    def get_final_price(self):
+        return self.get_total_price() + self.get_post_price()
+
+    def __len__(self):
+        return sum(item['quantity'] for item in self.cart.values())
+    
+    def __iter__(self):
+        product_ids = self.cart.keys()
+        products = Product.objects.filter(id__in=product_ids)
+        cart_dict = self.cart.copy()
+        for product in products:
+            # cart_dict[str(product.id)]['product'] = product
+            # در این بخش هم برای اینکه قیمت مستقیم از دیتابیس بگیرم تغییراتی اعمال کردم 
+            item = cart_dict[str(product.id)]
+            item['product'] = product
+            item['price'] = product.new_price
+            item['weight'] = product.weight
+            item['total'] = product.new_price * item['quantity']
+
+        for item in cart_dict.values():
+            # item['total'] = item['price'] * item['quantity']
+            yield item
+
+
+    def save(self):
+        self.session.modified = True

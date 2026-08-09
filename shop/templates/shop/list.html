@@ -1,0 +1,57 @@
+{% extends "parent/base.html" %}
+{% load static %}
+{% block title %}Product List{% endblock title %}
+{% block content %}
+<br><br>
+    <div class='header'>
+        {% if category %}
+            <h1>List of products by category : {{category.name}}</h1>
+        {% else %}
+            Product List
+        {% endif %}
+    </div>
+    <div>
+        <div>
+            <ul class='categories'>
+                <li class='category'><a href='{% url "shop:product_list" %}'>All</a></li>
+                {% for ct in categories %}
+                    <li class='category'><a href='{{ct.get_absolute_url}}'>{{ct.name}}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <br>
+        {% comment %} ///////////////////////////////////////////// {% endcomment %}
+        <div class="sorting-container">
+            <span>مرتب‌سازی:</span>
+
+            <a href="?sort=newest" 
+            style="{% if sort_by == 'newest' %}color: red; font-weight: bold;{% else %}color: #555;{% endif %}">
+            جدیدترین‌ها
+            </a>
+
+            <a href="?sort=cheapest" 
+            style="{% if sort_by == 'cheapest' %}color: red; font-weight: bold;{% else %}color: #555;{% endif %}">
+            ارزان‌ترین‌ها
+            </a>
+        </div>
+        {% comment %} ///////////////////////////////////////////// {% endcomment %}
+        <div>
+            {% for product in products %}
+            <br>
+                <div>
+                    <h2><a href='{{product.get_absolute_url}}'>{{product.name}}</a></h2>
+                    <img class='pic' src='{{product.images.first.file.url}}' with='300px' height='300px'>
+                    <div class='price'>
+                        {% comment %} <span class='orginal-price'>{{product.price}}</span> {% endcomment %}
+                        <br>
+                        <span class='discounted-price'>{{product.new_price}}</span>
+                    </div>
+                </div>
+            <br>
+            {% endfor %}
+        </div>
+    </div>
+    <br>
+    {% include "partials/pagination.html" with page=products%}
+{% endblock content %}

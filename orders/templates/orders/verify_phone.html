@@ -1,0 +1,14 @@
+{% extends "parent/base.html" %}
+{% block title %}Send verification code{% endblock title %}
+{% block content %}
+{% for message in messages %}
+    <div>
+        {{message}}
+    </div>
+{% endfor %}
+<form method='post'>
+    {% csrf_token %}
+    {{form.as_p}}
+    <button typr='submit'>send code</button>
+</form>
+{% endblock content %}

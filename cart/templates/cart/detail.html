@@ -1,0 +1,101 @@
+{% extends "parent/base.html" %}
+{% block title %}Product List{% endblock title %}
+{% block content %}
+<h1>Shopping Cart</h1>
+<div>
+    <br><br><br>
+    {% for item in cart %}
+        <div class='product-item' data-item-id="{{item.product.id}}">
+            <hr>
+            <a href='{% url "shop:product_detail" item.product.id item.product.slug %}'>
+                <img src='{{item.product.images.first.file.url}}' style='width:200px'>
+            </a>
+            <h3><a>product name : {{item.product.name}}</a></h3>
+            <p>count : <span id="item-quantity-{{item.product.id}}">{{item.quantity}}</span></p>
+            <p>Price per product : <span>{{item.price}}</span></p>
+            <p>total price : <span id="item-total-{{item.product.id}}">{{item.total}}</span></p>
+            <div>
+                <div class='quantity-add'>+</div>
+                <div class='quantity-decrease'>-</div>
+                <div class='quantity-remove'>remove</div>
+            </div>
+            <hr>
+            <br><br><br>
+        </div>
+    {% endfor %}
+    <br><br>
+    <div>
+        <p>all price : <span id='item-total-price'>{{cart.get_total_price}}</span></p>
+        <p>post price : <span id='item-post-price'>{{cart.get_post_price}}</span></p>
+        <p>final total price : <span id='item-final-price'>{{cart.get_final_price}}</span></p>
+    </div>
+    <br><br>
+    <a href='{% url "orders:verify_phone" %}'>Continue shopping</a><br>
+    <a href='{% url "shop:product_list" %}'>product list</a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('.quantity-add').on('click' , function(){
+            updateQuantity($(this).closest('.product-item').data('item-id'),'add');
+        });
+        $('.quantity-decrease').on('click' , function(){
+            updateQuantity($(this).closest('.product-item').data('item-id'),'decrease');
+        });
+        $('.quantity-remove').on('click' , function(){
+            const row = $(this).closest('.product-item');
+            removeItem($(this).closest('.product-item').data('item-id'),row);
+        });
+
+        function updateQuantity(itemId , action){
+            $.ajax({
+                type : 'POST',
+                url : '{% url "cart:update_quantity" %}',
+                data : {
+                    'item_id':itemId,
+                    'action':action,
+                    csrfmiddlewaretoken : '{{csrf_token}}',
+                },
+                success : function(response){
+                    if(response.success){
+                        $('#item_count').text(response.item_count);
+                        $('#total_price').text(response.total_price);
+                        $('#item-quantity-' + itemId).text(response.quantity);
+                        $('#item-total-' + itemId).text(response.total);
+                        $('#item-total-price').text(response.total_price);
+                        $('#item-final-price').text(response.final_price);
+                    }else{
+                        alert('Error updating quantity !');
+                    }
+                }
+            });
+        }
+        function removeItem(itemId , row){
+            $.ajax({
+                type : 'POST',
+                url : '{% url "cart:remove_item" %}',
+                data : {
+                    'item_id':itemId,
+                    csrfmiddlewaretoken : '{{csrf_token}}',
+                },
+                success : function(response){
+                    if(response.success){
+                        $('#item_count').text(response.item_count);
+                        $('#total_price').text(response.total_price);
+                        $('#item-total-price').text(response.total_price);
+                        $('#item-final-price').text(response.final_price);
+                        //$('.product-item[data-item-id="${itemId}"]').remove();
+                        row.remove();
+                    }else{
+                        alert('Error updating quantity !');
+                    }
+                },
+                error : function(){
+                    alert('Ajax error');
+                }
+            });
+        }
+    });
+</script>
+{% endblock content %}
