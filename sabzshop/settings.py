@@ -87,7 +87,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'sabzshop',          
         'USER': 'postgres',             
-        'PASSWORD': '12345678',    
+        'PASSWORD': 'your pass',    
         'HOST': 'localhost',        
         'PORT': '5432',
     }
@@ -149,7 +149,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'ashkanbyo@gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_PASSWORD = 'hwaz wjbv loqy tyac'
+EMAIL_HOST_PASSWORD = 'your pass'
 DEFAULT_FROM_EMAIL = 'ashkanbyo@gmail.com'
 
 
