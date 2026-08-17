@@ -30,7 +30,6 @@ def verify_phone(request):
                     request.session['verification_code'] = tokens['token']
                     request.session['phone'] = phone
                     print(tokens)
-                    # send_lookup('09353181207' , 'sabz_shop' , {'token':'ashkan' , 'token2':tokens})
                     messages.error(request , 'verification code sent successfully . ')
                     return redirect('orders:verify_code')
     else:
@@ -67,13 +66,14 @@ def order_create(request):
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
-            order = form.save()
-            order.buyer = request.user
-            order.save()
-            for item in cart:
-                OrderItem.objects.create(order=order,product=item['product'],price=item['price'],quantity=item['quantity'],weight=item['weight'])
+            # order = form.save()
+            # order.buyer = request.user
+            # order.save()
+            # for item in cart:
+            #     OrderItem.objects.create(order=order,product=item['product'],price=item['price'],quantity=item['quantity'],weight=item['weight'])
             # cart.clear()
-            return redirect('orders:request')
+            request.session['order_data'] = form.cleaned_data
+            return redirect('orders:order_confirm')
                                                     
     else:
         form = OrderCreateForm()
@@ -85,69 +85,42 @@ def order_create(request):
     return render(request , 'orders/order_create.html' , context)
 
 #--------------------
+# orders/views.py
 
-# ? sandbox merchant
-if settings.SANDBOX:
-    sandbox = 'sandbox'
-else:
-    sandbox = 'www'
-
-ZP_API_REQUEST = f"https://{sandbox}.zarinpal.com/pg/rest/WebGate/PaymentRequest.json"
-ZP_API_VERIFY = f"https://{sandbox}.zarinpal.com/pg/rest/WebGate/PaymentVerification.json"
-ZP_API_STARTPAY = f"https://{sandbox}.zarinpal.com/pg/StartPay/"
-
-CallbackURL = 'http://127.0.0.1:8000/order/verify/'
-
-
-def send_request(request):
-    # order = Order.objects.get(id=request.session['order_id'])
+def order_confirm(request):
     cart = Cart(request)
-    description = ""
-    for item in cart:
-        description += item['product'].name + ", "
-    data = {
-        "MerchantID": settings.MERCHANT,
-        "Amount": cart.get_final_price(),
-        "Description": description,
-        "Phone": request.user.phone,
-        "CallbackURL": CallbackURL,
-    }
-    data = json.dumps(data)
-    # set content length by data
-    headers = {'accept': 'application/json', 'content-type': 'application/json', 'content-length': str(len(data))}
-    try:
-        response = requests.post(ZP_API_REQUEST, data=data, headers=headers, timeout=10)
+    order_data = request.session.get('order_data')
 
-        if response.status_code == 200:
-            response_json = response.json()
-            authority = response_json['Authority']
-            if response_json['Status'] == 100:
-                cart.clear()
-                return redirect(ZP_API_STARTPAY + authority)
-            else:
-                return HttpResponse('Error')
-        return HttpResponse('response failed')
-    except requests.exceptions.Timeout:
-        return HttpResponse('Timeout Error')
-    except requests.exceptions.ConnectionError:
-        return HttpResponse('Connection Error')
+    # اگر کاربر مستقیم به این آدرس بیاید و اطلاعاتی در سشن نباشد
+    if not order_data:
+        return redirect('orders:order_create')
 
+    if request.method == 'POST':
+        # مرحله نهایی: ایجاد سفارش و پرداخت
+        order = Order.objects.create(
+            buyer=request.user,
+            paid=True, # تنظیم وضعیت پرداخت به True
+            **order_data
+        )
+        
+        # ذخیره آیتم‌ها
+        for item in cart:
+            OrderItem.objects.create(
+                order=order, 
+                product=item['product'], 
+                price=item['price'], 
+                quantity=item['quantity'], 
+                weight=item['weight']
+            )
+        
+        # پاکسازی
+        cart.clear() # خالی کردن سبد
+        del request.session['order_data'] # حذف اطلاعات از سشن
+        
+        return redirect('shop:product_list')
 
-def verify(authority):
-    data = {
-        "MerchantID": settings.MERCHANT,
-        # "Amount": amount,
-        "Authority": authority,
-    }
-    data = json.dumps(data)
-    # set content length by data
-    headers = {'content-type': 'application/json', 'content-length': str(len(data)) }
-    response = requests.post(ZP_API_VERIFY, data=data,headers=headers)
+    return render(request, 'orders/order_confirm.html', {
+        'order_data': order_data, 
+        'cart': cart
+    })
 
-    if response.status_code == 200:
-        response = response.json()
-        if response['Status'] == 100:
-            return {'status': True, 'RefID': response['RefID']}
-        else:
-            return {'status': False, 'code': str(response['Status'])}
-    return response

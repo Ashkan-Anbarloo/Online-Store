@@ -46,7 +46,7 @@ def edit_user(request):
             addr = address_form.save(commit=False)
             addr.user = user
             addr.save()
-            return redirect('shop:home')
+            return redirect('shop:product_list')
 
     return render(request, 'registration/edit_user.html', {
         'user_form': user_form,

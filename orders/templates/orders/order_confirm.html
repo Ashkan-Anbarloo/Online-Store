@@ -1,0 +1,30 @@
+<!-- templates/orders/order_confirm.html -->
+<h2>بازبینی نهایی سفارش</h2>
+
+<div class="order-info">
+    <h3>اطلاعات ارسال:</h3>
+    <p>نام: {{ order_data.first_name }} {{ order_data.last_name }}</p>
+    <p>تلفن: {{ order_data.phone }}</p>
+    <p>آدرس: {{ order_data.address }}</p>
+</div>
+
+<div class="cart-items">
+    <h3>کالاهای شما:</h3>
+    <ul>
+        {% for item in cart %}
+            <li>{{ item.product.name }} - تعداد: {{ item.quantity }} - قیمت: {{ item.price }}</li>
+        {% endfor %}
+    </ul>
+    <p>مجموع هزینه: {{ cart.get_total_price }}</p>
+</div>
+
+<!-- دکمه نهایی کردن و پرداخت -->
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="btn-pay">تأیید و پرداخت نهایی</button>
+</form>
+
+<!-- دکمه بازگشت به لیست کالاها (بدون حذف سشن) -->
+<a href="{% url 'shop:product_list' %}" class="btn-back">بازگشت به لیست کالاها (ادامه خرید)</a>
+<br>
+<a href="{% url 'cart:cart_detail' %}" class="btn-back">ویرایش سبد خرید</a>

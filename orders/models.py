@@ -37,7 +37,7 @@ class Order(models.Model):
             return 50000
     
     def get_final_cost(self):
-        price = self.get_post_cost + self.get_total_cost
+        price = self.get_post_cost() + self.get_total_cost()
         return price
     
 

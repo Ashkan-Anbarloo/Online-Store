@@ -1,13 +1,14 @@
 from django.shortcuts import render , get_object_or_404 , redirect
 from .models import Category , Product
 from django.core.paginator import Paginator , EmptyPage , PageNotAnInteger
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 
-def home(request):
-    # if not request.user.is_authenticated:
-    #     return redirect('account:login')
-    user = request.user
-    return render(request , 'shop/home.html' , {})
+# def home(request):
+#     # if not request.user.is_authenticated:
+#     #     return redirect('account:login')
+#     user = request.user
+#     return render(request , 'shop/home.html' , {})
 
 
 def product_list(request , category_slug=None):
@@ -45,7 +46,7 @@ def product_list(request , category_slug=None):
     return render(request , 'shop/list.html' , context)
 
 
-
+@login_required
 def product_detail(request , id , slug):
     product = get_object_or_404(Product , slug=slug , id=id)
     related_products = (

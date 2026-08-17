@@ -139,7 +139,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR , 'images')
 
 
 
-LOGIN_REDIRECT_URL = 'shop:home'
+LOGIN_REDIRECT_URL = 'shop:product_list'
+LOGIN_URL = '/account/login/'
 
 
 
@@ -178,9 +179,5 @@ REST_FRAMEWORK = {
     'PAGE_SIZE':10
 }
 
-
-MERCHANT = "00000000-0000-0000-0000-000000000000"
-
-SANDBOX = False
 
 

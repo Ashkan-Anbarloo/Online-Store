@@ -1,8 +1,20 @@
-<div>
-    {% with item_count=cart|length %}
-        <a href='{% url "cart:cart_detail" %}'><span>Shop</span></a>
-        <p id='item_count'>count : {{item_count}} items</p>
-        <p id='total_price'>price : {{cart.get_total_price}}</p>
-    {% endwith %}
-    <hr><br>
-</div>
+{% load static %}
+<header>
+    <div class="header-container">
+        <!-- سایر لینک‌ها یا لوگوی سایت -->
+
+        {% if request.user.is_authenticated %}
+            <!-- نمایش بخش سبد خرید یا اینکلود کردن آن -->
+            <div class="cart-box">
+                {% comment %} {% include 'shop/cart_shop.html' %} {% endcomment %}
+                <a href="{% url 'cart:cart_detail' %}" class="btn-cart">
+                    <img src="{% static 'icons/images.png' %}" alt="سبد خرید" width="30" height="30">
+                    <span id='item_count'>{{cart|length}}</span>
+                </a>
+            </div>
+        {% else %}
+            <!-- اگر کاربر لاگین نکرده بود (اختیاری: لینک ورود) -->
+            {% comment %} <a href="{% url 'login' %}" class="login-btn">ورود / ثبت‌نام</a> {% endcomment %}
+        {% endif %}
+    </div>
+</header>

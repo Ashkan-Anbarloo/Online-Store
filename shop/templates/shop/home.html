@@ -2,10 +2,10 @@
 {% block title %}Home Page{% endblock title %}
 {% block content %}
     {% if not request.user.is_authenticated %}
-        <span>Welcome : </span>
+        {% comment %} <span>Welcome : </span>
         <a href="{% url 'account:login' %}">ورود</a> / 
-        <a href="{% url 'account:register' %}">ثبت‌نام</a> 
-        <p><a href='{% url "account:password_reset" %}'>Reset password</a></p>
+        <a href="{% url 'account:register' %}">ثبت‌نام</a>  {% endcomment %}
+        {% comment %} <p><a href='{% url "account:password_reset" %}'>Reset password</a></p> {% endcomment %}
     {% endif %}
-
+    
 {% endblock content %}

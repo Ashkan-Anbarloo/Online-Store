@@ -9,6 +9,7 @@
     <input type='submit' value='Enter'>
 </form>
 <br>
+<p><a href='{% url "account:password_reset" %}'>Reset password</a></p>
 {% comment %} <a href='{% url "social:password_change" %}'>Password Change</a> {% endcomment %}
 {% comment %} <p><a href='{% url "account:password_reset" %}'>Reset password</a></p> {% endcomment %}
 {% endblock content %}

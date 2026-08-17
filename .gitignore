@@ -8,3 +8,8 @@ db.sqlite3
 *.json
 *.sqlite3
 images/
+sabzshop/settings.py
+cart/common
+migrations
+settings
+common
