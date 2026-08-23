@@ -11,5 +11,5 @@ images/
 sabzshop/settings.py
 cart/common
 migrations
-settings
+settings.py
 common

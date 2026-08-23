@@ -1,0 +1,13 @@
+{% extends "parent/base.html" %}
+{% load static %}
+{% block title %}PROFILE{% endblock title %}
+{% block content %}
+<br>
+<h2>User Information : </h2>
+<p>first name : {{user.first_name}}</p>
+<p>last name : {{user.last_name}}</p>
+<p>E-mail : {{user.email}}</p>
+{% comment %} <p>Addres : {{user.address.first.}}</p> {% endcomment %}
+<br>
+<a href='{% url "account:edit_account" %}'>Edit Profile</a>
+{% endblock content%}

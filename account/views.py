@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate , login , logout
 from django.http import HttpResponse , JsonResponse
 from .forms import UserRegisterForm , AddressForm , UserEditForm
 from django.contrib.auth.decorators import login_required
-from .models import Address
+from .models import Address , ShopUser
 # Create your views here.
 
 def log_out(request):
@@ -31,6 +31,11 @@ def register(request):
     })
 
 
+@login_required
+def user_detail(request):  #, phone
+    user = get_object_or_404(ShopUser , phone=request.user.phone , is_active=True)
+    return render(request , 'user/user_detail.html' , {'user':user})
+
 
 @login_required
 def edit_user(request):
@@ -46,7 +51,8 @@ def edit_user(request):
             addr = address_form.save(commit=False)
             addr.user = user
             addr.save()
-            return redirect('shop:product_list')
+            # return redirect('shop:product_list')
+            return redirect('account:user_detail')
 
     return render(request, 'registration/edit_user.html', {
         'user_form': user_form,

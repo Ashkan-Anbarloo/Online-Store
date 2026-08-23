@@ -11,6 +11,9 @@
                     <img src="{% static 'icons/images.png' %}" alt="سبد خرید" width="30" height="30">
                     <span id='item_count'>{{cart|length}}</span>
                 </a>
+                <a href='{% url "account:user_detail" %}' class="btn-cart">
+                    <img src="{% static 'icons/prof.webp' %}" alt="پروفایل" width="30" height="30">
+                </a>
             </div>
         {% else %}
             <!-- اگر کاربر لاگین نکرده بود (اختیاری: لینک ورود) -->
