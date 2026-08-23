@@ -2,6 +2,8 @@ from django.shortcuts import render , get_object_or_404 , redirect
 from .models import Category , Product
 from django.core.paginator import Paginator , EmptyPage , PageNotAnInteger
 from django.contrib.auth.decorators import login_required
+from .forms import CommentForm
+from django.http import JsonResponse
 # Create your views here.
 
 # def home(request):
@@ -52,8 +54,46 @@ def product_detail(request , id , slug):
     related_products = (
         Product.objects.filter(category=product.category).exclude(id=product.id).order_by('-created')[:4]
     )
+    comments = product.comments.all()
+    form = CommentForm()
     context = {
         'product':product,
         'related_products':related_products,
+        'comments':comments,
+        'form':form,
     }
     return render(request , 'shop/detail.html' , context)
+
+
+@login_required
+def post_comment(request , id):
+    product = get_object_or_404(Product , id=id)
+    comment = None
+    if request.method == 'POST':
+        form = CommentForm(data=request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.product = product
+            comment.name = (
+                getattr(request.user, 'get_full_name', lambda: '')().strip()
+                or getattr(request.user, 'username', '')
+                or str(request.user)
+            )
+            comment.save()
+            return JsonResponse({
+                'status': 'ok',
+                'name': comment.name,
+                'body': comment.body,
+                'created': comment.created,
+            })
+    else : 
+        form = CommentForm()
+        
+    return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+    # context = {
+    #     'product' : product,
+    #     'form' : form,
+    #     'comment' : comment,
+    # }
+    # return render(request , 'forms/comment.html' , context)
+    # return render(request , 'shop/detail.html' , context)

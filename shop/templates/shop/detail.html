@@ -7,7 +7,7 @@
     </div>
     <div>
         <div>
-            <h2>{{product.category}}</h2>
+            {% comment %} <h2>{{product.category}}</h2> {% endcomment %}
             <p>{{product.category}}</p>
             <p>{{product.inventory}}</p>
             <ul>
@@ -31,7 +31,27 @@
     <br><br>
     <button type='button' id='add-cart'>add to cart</button>
 
-<br><br>
+<br><br><br>
+<h3 id='comment-count' class='comment-count'>Comments : {{product.comments.count}}</h3>
+<div id="comments-list">
+    {% for comment in product.comments.all %}
+        <div class="comment-item">
+            <p><strong>{{ comment.name }}</strong> - {{ comment.created }}</p>
+            <p>{{ comment.body|linebreaks }}</p>
+        </div>
+        <br><br>
+    {% empty %}
+        <p id="no-comment">No comments yet.</p>
+    {% endfor %}
+</div>
+<form method='post' id="comment-form"> 
+    {% csrf_token %}
+    {{form.as_p}}
+    <input type='submit' value="ADD Comment">
+</form>
+<div id="comment-message" style="display:none;"></div>
+<br><br><br>
+
 {% if related_products %}
     <section class="related-products">
         <h2>Related products</h2>
@@ -73,6 +93,53 @@
                     $('#total_price').text(data.total_price);
                 },
             });
+        });
+    });
+    $('#comment-form').on('submit', function(e) {
+        e.preventDefault();
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "shop:product_comment" product.id %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'body': $('#id_body').val(),
+            },
+            success: function(data) {
+                if (data.status === 'ok') {
+                    // پاک کردن فرم
+                    $('#id_body').val('');
+
+                    // حذف پیام «هنوز کامنتی نیست»
+                    $('#no-comment').remove();
+
+                    // اضافه کردن کامنت جدید به لیست بدون reload
+                    var newComment = `
+                        <div class="comment-item">
+                            <strong>${data.name}</strong>
+                            <span>${data.created}</span>
+                            <p>${data.body}</p>
+                        </div>
+                    `;
+                    $('#comments-list').prepend(newComment);
+
+                    // نمایش پیام موفقیت
+                    $('#comment-message').text('کامنت شما ثبت شد.').show();
+                    setTimeout(function() {
+                        $('#comment-message').hide();
+                    }, 3000);
+                }
+            },
+            error: function(xhr) {
+                // var errors = xhr.responseJSON.errors;
+                // $('#comment-message').text('خطا: ' + JSON.stringify(errors)).show();
+                
+                var msg = 'خطا در ارسال کامنت.';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    msg += ' ' + JSON.stringify(xhr.responseJSON.errors);
+                }
+                $('#comment-message').text(msg).show();
+            }
         });
     });
 </script>

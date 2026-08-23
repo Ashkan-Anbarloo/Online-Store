@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category , Product , Image , ProductFeature
+from .models import Category , Product , Image , ProductFeature , Comment
 # Register your models here.
 
 
@@ -24,3 +24,10 @@ class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug':('name',)}
     list_filter = ['created' , 'updated']
     inlines = [ImageInline , FeatureInline]
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['product' , 'name' , 'created']
+    list_filter = ['created' , 'updated']
+    search_fields = ['name' , 'body']
