@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from account.models import ShopUser
 # Create your models here.
 
 class Category(models.Model):
@@ -35,6 +36,7 @@ class Product(models.Model):
     # features = models.ForeignKey(ProductFeature , related_name=)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(ShopUser , related_name='liked_posts' , blank=True)
 
     class Meta:
         ordering = ['-created']

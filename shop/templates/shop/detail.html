@@ -72,7 +72,14 @@
         {% endfor %}
     </section>
 {% endif %}
-
+<button class='like-button' data-product-id="{{ product.id }}">
+    {% if request.user in product.likes.all %}
+        Unlike
+    {% else %}
+        Like
+    {% endif %}
+</button>
+<span class="likes-count">{{ product.likes.count }} like</span>
 
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxy/1.6.1/scripts/jquery.ajaxy.min.js" integrity="sha512-bztGAvCE/3+a1Oh0gUro7BHukf6v7zpzrAb3ReWAVrt+bVNNphcl2tDTKCBr5zk7iEDmQ2Bv401fX3jeVXGIcA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
 
@@ -82,6 +89,26 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
     $(document).ready(function(){
+        $('.like-button').click(function(){
+            //var product_id = $(this).closest('.product').data('product-id');
+            var button = $(this);
+            var product_id = button.data('product-id')
+            var csrfToken = '{{csrf_token}}';
+
+            $.ajax({
+                type:'POST',
+                url:'{% url "shop:like_post" %}',
+                data:{'product_id':product_id , 'csrfmiddlewaretoken':csrfToken},
+                success : function(data){
+                    if(data.liked){
+                        button.text('Unlike');
+                    }else{
+                        button.text('Like');
+                    }
+                    $('.likes-count').text(data.liked_count + 'like');
+                },
+            });
+        });
         $('#add-cart').click(function(){
             var button = $(this);
             $.ajax({

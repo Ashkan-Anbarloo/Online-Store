@@ -4,6 +4,7 @@ from django.core.paginator import Paginator , EmptyPage , PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from .forms import CommentForm
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 # Create your views here.
 
 # def home(request):
@@ -74,11 +75,12 @@ def post_comment(request , id):
         if form.is_valid():
             comment = form.save(commit=False)
             comment.product = product
-            comment.name = (
-                getattr(request.user, 'get_full_name', lambda: '')().strip()
-                or getattr(request.user, 'username', '')
-                or str(request.user)
-            )
+            # comment.name = (
+            #     getattr(request.user, 'get_full_name', lambda: '')().strip()
+            #     or getattr(request.user, 'username', '')
+            #     or str(request.user)
+            # )
+            comment.name = request.user.first_name
             comment.save()
             return JsonResponse({
                 'status': 'ok',
@@ -97,3 +99,27 @@ def post_comment(request , id):
     # }
     # return render(request , 'forms/comment.html' , context)
     # return render(request , 'shop/detail.html' , context)
+
+
+@login_required
+@require_POST
+def like_post(request):
+    product_id = request.POST.get('product_id')
+    if product_id is not None:
+        product = get_object_or_404(Product , id=product_id)
+        user = request.user
+
+        if user in product.likes.all():
+            product.likes.remove(user)
+            liked = False
+        else:
+            product.likes.add(user)
+            liked = True
+        product_likes_count = product.likes.count()
+        response_data = {
+            'liked':liked,
+            'liked_count':product_likes_count,
+        }
+    else:
+        response_data = {'error':'Invalid post_id'}
+    return JsonResponse(response_data)
