@@ -52,7 +52,7 @@ class ShopUserChangeForm(UserChangeForm):
 
 
 class LoginForm(AuthenticationForm):
-    phone = forms.CharField(max_length=11 , required=True)
+    username = forms.CharField(label='Phone' , max_length=11 , required=True)
     password = forms.CharField(max_length=250 , required=True , widget=forms.PasswordInput)
 
 

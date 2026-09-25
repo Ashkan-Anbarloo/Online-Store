@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin
 from .forms import ShopUserChangeForm , ShopUserCreationForm
 # Register your models here.
 
+
 class AddressInline(admin.TabularInline):
     model = Address
     extra = 0

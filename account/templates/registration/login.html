@@ -4,9 +4,16 @@
 <p>pls inter your informations</p>
 <form method='post'>
     {% csrf_token %}
-    {{form.as_p}}
-    <input type='hidden' name='text' value='{{next}}'>
-    <input type='submit' value='Enter'>
+    {% comment %} {{form.as_p}} {% endcomment %}
+    <!-- <input type='hidden' name='text' value='{{next}}'> -->
+    {% comment %} <input type='submit' value='Enter'> {% endcomment %}
+    <label for="id_username">Phone:</label>
+    <input type="text" name="username" id="id_username" maxlength="11" required>
+
+    <label for="id_password">Password:</label>
+    <input type="password" name="password" id="id_password" required>
+
+    <button type="submit">Enter</button>
 </form>
 <br>
 <p><a href='{% url "account:password_reset" %}'>Reset password</a></p>

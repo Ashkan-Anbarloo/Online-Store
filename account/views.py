@@ -21,7 +21,7 @@ def register(request):
             address = address_form.save(commit=False)
             address.user = user
             address.save()
-            return redirect('shop:home')
+            return redirect('shop:product_list')
     else:
         user_form = UserRegisterForm()
         address_form = AddressForm()
