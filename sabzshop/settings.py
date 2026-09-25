@@ -87,7 +87,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'sabzshop',          
         'USER': 'postgres',             
-        'PASSWORD': '12345678',    
+        'PASSWORD': 'your pass',    
         'HOST': 'localhost',        
         'PORT': '5432',
     }
